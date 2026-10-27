@@ -1,0 +1,155 @@
+{
+  "info": {
+    "_postman_id": "50792a52-577c-4acf-9046-b51b21d51f92",
+    "name": "Ecommerce API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "29814664",
+    "_collection_link": "https://go.postman.co/collection/29814664-50792a52-577c-4acf-9046-b51b21d51f92?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status Code é 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Tempo de resposta inferior a 1500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(1500);\r\n});\r\n\r\npm.test(\"Validação de Schema - Token e Dados do Usuário presentes\", function () {\r\n    const jsonData = pm.response.json();\r\n\r\n    pm.expect(jsonData).to.have.property(\"accessToken\");\r\n    pm.environment.set(\"token\", jsonData.accessToken);\r\n\r\n    pm.expect(jsonData.id).to.be.a(\"number\");\r\n    pm.expect(jsonData.username).to.be.a(\"string\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"username\": \"emilys\",\r\n  \"password\": \"emilyspass\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Catálogo de Produtos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status Code é 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Tempo de resposta inferior a 1500ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(1500);\r\n});\r\n\r\npm.test(\"Validação de Schema - Lista de produtos presente\", function () {\r\n    const jsonData = pm.response.json();\r\n    pm.expect(jsonData).to.have.property(\"products\");\r\n    pm.expect(jsonData.products).to.be.an(\"array\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Adicionar ao Carrinho",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status Code é 201 (Created)\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Validação da criação do carrinho\", function () {\r\n    const jsonData = pm.response.json();\r\n\r\n    pm.expect(jsonData).to.have.property(\"id\");\r\n    pm.expect(jsonData.products).to.be.an(\"array\");\r\n    pm.expect(jsonData.products[0].id).to.eql(1);\r\n    pm.expect(jsonData.totalQuantity).to.eql(2);\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"userId\": 1,\r\n  \"products\": [\r\n    {\r\n      \"id\": 1,\r\n      \"quantity\": 2\r\n    }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/carts/add",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "carts",
+            "add"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Checkout",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status Code é 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Validação do resumo do checkout\", function () {\r\n    const jsonData = pm.response.json();\r\n\r\n    pm.expect(jsonData.carts).to.be.an(\"array\");\r\n    pm.expect(jsonData.carts[0]).to.have.property(\"total\");\r\n    pm.expect(jsonData.carts[0]).to.have.property(\"discountedTotal\");\r\n});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/carts/user/1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "carts",
+            "user",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

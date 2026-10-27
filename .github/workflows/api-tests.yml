@@ -1,0 +1,42 @@
+# Roda a coleção do Postman com o Newman a cada push, todo dia às 9h (Brasília) e sob demanda.
+# O relatório HTML fica disponível em Actions > (execução) > Artifacts.
+name: Testes de API
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+jobs:
+  newman:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Rodar a coleção
+        run: |
+          mkdir -p reports
+          newman run collections/ecommerce-api-tests.postman_collection.json \
+            -e environments/dev.postman_environment.json \
+            -r cli,htmlextra,junit \
+            --reporter-htmlextra-export reports/relatorio.html \
+            --reporter-htmlextra-title "Ecommerce API Tests" \
+            --reporter-junit-export reports/junit.xml
+
+      - name: Publicar relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-newman
+          path: reports/
