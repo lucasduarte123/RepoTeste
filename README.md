@@ -62,4 +62,4 @@ reports/       Exemplo de relatório gerado pelo Newman
 
 ---
 
-Feito por [Lucas Duarte](https://www.linkedin.com/in/lucas-duarte-59b95b6) · Analista de QA · Florianópolis/SC
+Feito por [Lucas Duarte](https://www.linkedin.com/in/lucas-duarte-59b95b67) · Analista de QA · Florianópolis/SC
